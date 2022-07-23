@@ -1,3 +1,20 @@
+/*
+ ===============================================================================
+ |                                nokia-keypad                                 |
+ |                 https://github.com/mrsafalpiya/nokia-keypad                 |
+ |                                                                             |
+ |                A simple ncurses based nokia keypad emulator.                |
+ |                                                                             |
+ |                  No warranty implied; Use at your own risk                  |
+ |                  See end of file for license information.                   |
+ ===============================================================================
+ *
+ * All the necessary information about this code is on the README.md file
+ * available on https://github.com/mrsafalpiya/nokia-keypad.
+ *
+ * To understand everything else, start reading main().
+ */
+
 /* TODO:
  * - Handle resize signal.
  * - Proper documentation of functions.
@@ -29,8 +46,8 @@ static unsigned int output_string_i           = 0;
 
 /* output char */
 /* keys LUT starting from 0 */
-char keys_lut[10][5] = { " .0",   "*#1",  "ABC2",  "DEF3", "GHI4",
-	                 "JKL5", "MNO6", "PQRS7", "TUV8", "WXYZ9" };
+static char keys_lut[10][5] = { " .0",  "*#1",  "ABC2",  "DEF3", "GHI4",
+	                        "JKL5", "MNO6", "PQRS7", "TUV8", "WXYZ9" };
 
 static int is_capital = 0, is_waiting = 0;
 
@@ -448,8 +465,7 @@ main(void)
 
 	/* initial screen output */
 	case_status_print(is_capital);
-	status_print(
-		"Press one of the followings: 0-9, #, backspace, c, y, q");
+	status_print("Press one of the followings: 0-9, #, backspace, c, y, q");
 	output_string_print(output_string);
 	output_string_cursor_update();
 
@@ -539,3 +555,34 @@ main(void)
 		status_print("%c", input_ch);
 	}
 }
+
+/*
+ ===============================================================================
+ |                 License - Public Domain (www.unlicense.org)                 |
+ ===============================================================================
+ *
+ * This is free and unencumbered software released into the public domain.
+ *
+ * Anyone is free to copy, modify, publish, use, compile, sell, or
+ * distribute this software, either in source code form or as a compiled
+ * binary, for any purpose, commercial or non-commercial, and by any
+ * means.
+ *
+ * In jurisdictions that recognize copyright laws, the author or authors
+ * of this software dedicate any and all copyright interest in the
+ * software to the public domain. We make this dedication for the benefit
+ * of the public at large and to the detriment of our heirs and
+ * successors. We intend this dedication to be an overt act of
+ * relinquishment in perpetuity of all present and future rights to this
+ * software under copyright law.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * For more information, please refer to <http://unlicense.org/>
+ */
