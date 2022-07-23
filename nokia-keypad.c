@@ -1,14 +1,13 @@
 /* TODO:
- * - Somehow enable printing 0.
  * - Handle resize signal.
  * - Proper documentation of functions.
  */
 
 #include <ncurses.h> /* tui interface */
 #include <stdlib.h>
-#include <signal.h>   /* sigaction() */
-#include <unistd.h>   /* alarm() */
-#include <string.h>   /* memset() */
+#include <signal.h> /* sigaction() */
+#include <unistd.h> /* alarm() */
+#include <string.h> /* memset() */
 
 /*
  ===============================================================================
@@ -27,6 +26,11 @@ static int     term_row, term_col; /* info about the terminal screen */
 static char         output_string[STRING_MAX] = { 0 };
 static unsigned int output_string_len         = 0;
 static unsigned int output_string_i           = 0;
+
+/* output char */
+/* keys LUT starting from 0 */
+char keys_lut[10][5] = { " .0",   "*#1",  "ABC2",  "DEF3", "GHI4",
+	                 "JKL5", "MNO6", "PQRS7", "TUV8", "WXYZ9" };
 
 static int is_capital = 0, is_waiting = 0;
 
@@ -203,16 +207,9 @@ key_index_incr_wrap(int input_ch, int *key_index)
 {
 	int index = *key_index;
 
-	if (input_ch == '7' || input_ch == '9') {
-		if (index == 4) {
-			*key_index = 0;
-			return;
-		}
-	} else {
-		if (index == 3) {
-			*key_index = 0;
-			return;
-		}
+	if (keys_lut[input_ch - '0'][index + 1] == '\0') {
+		*key_index = 0;
+		return;
 	}
 
 	*key_index = ++index;
@@ -221,17 +218,9 @@ key_index_incr_wrap(int input_ch, int *key_index)
 static char
 get_output_ch(char input_ch, int key_index)
 {
-	/* TODO: Document about the last element '[' */
-	int keys_lut[9] = {
-		'A', 'D', 'G', 'J', 'M', 'P', 'T', 'W', '['
-	}; /* starting ascii decimal number of all keypad alphabets */
+	int output_key = keys_lut[input_ch - '0'][key_index];
 
-	int output_key = keys_lut[input_ch - '2'] + key_index;
-
-	if (output_key == keys_lut[input_ch - '2' + 1])
-		return input_ch;
-
-	if (!is_capital)
+	if (!is_capital && (output_key >= 'A' && output_key <= 'Z'))
 		output_key += 'a' - 'A';
 	return output_key;
 }
@@ -460,7 +449,7 @@ main(void)
 	/* initial screen output */
 	case_status_print(is_capital);
 	status_print(
-		"Press one of the followings: 0-9, *, #, backspace, c, y, q");
+		"Press one of the followings: 0-9, #, backspace, c, y, q");
 	output_string_print(output_string);
 	output_string_cursor_update();
 
@@ -480,24 +469,6 @@ main(void)
 		/* first check if the input is a special characters */
 		int is_input_special_char = 0;
 		switch (input_ch) {
-		case '1':
-			if (is_waiting)
-				output_string_cursor_frwd();
-			output_string_ch_insert('1');
-			output_string_cursor_frwd();
-			is_input_special_char = 1;
-
-			status_print("1");
-			break;
-		case '0': /* user wants to add a space */
-			if (is_waiting)
-				output_string_cursor_frwd();
-			output_string_ch_insert(' ');
-			output_string_cursor_frwd();
-			is_input_special_char = 1;
-
-			status_print("0 - Space");
-			break;
 		case 263: /* user wants to remove a character */
 			if (output_string_len == 0)
 				continue;
@@ -516,14 +487,16 @@ main(void)
 			break;
 		case 'y': /* user wants to yank the output string to clipboard */
 			output_string_copy_to_cb();
-			output_string_cursor_frwd();
+			if (is_waiting)
+				output_string_cursor_frwd();
 			is_input_special_char = 1;
 
 			status_print("y - Yank output string to clipboard");
 			break;
 		case '#': /* user wants to toggle case */
 			toggle_case();
-			output_string_cursor_frwd();
+			if (is_waiting)
+				output_string_cursor_frwd();
 			is_input_special_char = 1;
 
 			status_print("# - Toggle case");
@@ -538,9 +511,8 @@ main(void)
 			continue;
 		}
 
-		/* check if the input is valid */
-		/* NOTE: Starting from 2 */
-		if (input_ch < '2' || input_ch > '9') {
+		/* check if the input is valid digit */
+		if (input_ch < '0' || input_ch > '9') {
 			status_print("Invalid input.");
 			continue;
 		}
