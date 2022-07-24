@@ -16,8 +16,10 @@ Make sure you have all the prerequisites listed above.
 Then simply run
 
 ```
-make
+make release
 ```
+
+Or `make` to include debug flags too.
 
 ## Keybinds
 
@@ -41,3 +43,9 @@ make
 - `y` - Copy the output buffer to clipboard.
 - `#` - Toggle case sensitivity.
 - `q` - Quit the program.
+
+## Bugs
+
+- Broken display on window resize.
+- `getch()` for the input character can no longer catch a real getch error
+  after a signal handling.
